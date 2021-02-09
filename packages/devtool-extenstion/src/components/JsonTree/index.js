@@ -15,6 +15,8 @@ const TreeView = ({ data }) => {
         collapsed={1}
         src={isObject(data) ? data : { root: data }}
         enableClipboard
+        displayDataTypes={false}
+        quotesOnKeys={false}
       />
     </div>
   );
