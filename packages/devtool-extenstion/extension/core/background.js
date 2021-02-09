@@ -163,12 +163,11 @@ const saveCatchData = (request, { id: tabId, title }, subType) => {
   }
 
   catchData[tabId].tab.title = title;
-  const parsedData = JSON.parse(data);
 
-  if (parsedData.context) {
+  if (data.context) {
     const cacheContext = catchData[tabId].context;
-    Object.keys(parsedData.context).forEach(key => {
-      if (parsedData.context[key].valueChanged) {
+    Object.keys(data.context).forEach(key => {
+      if (data.context[key].valueChanged) {
         if (!cacheContext[key]) {
           cacheContext[key] = {
             oldValue: {},
@@ -177,29 +176,29 @@ const saveCatchData = (request, { id: tabId, title }, subType) => {
         }
 
         cacheContext[key].oldValue = cacheContext[key].newValue;
-        cacheContext[key].newValue = parsedData.context[key];
+        cacheContext[key].newValue = data.context[key];
       }
     });
 
     if (subType !== ADD_APP_DATA_EVENT) {
       Object.keys(cacheContext).forEach(key => {
-        if (!parsedData.context[key] && cacheContext[key].newValue.remove) {
+        if (!data.context[key] && cacheContext[key].newValue.remove) {
           delete cacheContext[key];
         }
       });
     }
   }
 
-  if (parsedData.useReducer) {
+  if (data.useReducer) {
     const cacheUseReducer = catchData[tabId].useReducer;
-    Object.keys(parsedData.useReducer).forEach(key => {
-      if (parsedData.useReducer[key].valueChanged) {
-        cacheUseReducer[key] = parsedData.useReducer[key];
+    Object.keys(data.useReducer).forEach(key => {
+      if (data.useReducer[key].valueChanged) {
+        cacheUseReducer[key] = data.useReducer[key];
       }
     });
 
     Object.keys(cacheUseReducer).forEach(key => {
-      if (!parsedData.useReducer[key]) {
+      if (!data.useReducer[key]) {
         delete cacheUseReducer[key];
       }
     });

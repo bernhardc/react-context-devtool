@@ -78,16 +78,34 @@ function injectHelpers(target) {
   };
 
   const parseData = (data) => {
-    return JSON.stringify(data, function (k, v) {
-      if (typeof v === "function") {
-        return "function () {}";
+
+    const transform = (value, parents = [], ) => {
+      if (value && typeof value === "object") {
+        const newValue = Array.isArray(value) ? [] : {};
+        for (const key in value) {
+          if (typeof value.hasOwnProperty === "function" && value.hasOwnProperty(key)) {
+            if (typeof value[key] === "function") {
+              newValue[key] = "function () {}";
+            }
+            else if (isHTMLElement(value)) {
+              newValue[key] = `<${value.tagName}> HTMLElement`;
+            } else {
+              const isCircular = parents.some(parent => parent === value[key]);
+              if (isCircular) {
+                newValue[key] = "[CIRCULAR REFERENCE]";
+              } else {
+                newValue[key] = transform(value[key], [...parents, value]);
+              }
+            }
+          }
+        }
+        return newValue;
       }
-      if (isHTMLElement(v)) {
-        return `<${v.tagName}> HTMLElemet`;
-      }
-      return v;
-    });
-  };
+      return value;
+    }
+    
+    return transform(data);
+  }
 
   const loadHookHelper = () => {
     target.postMessage(
